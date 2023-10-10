@@ -1,21 +1,13 @@
 import ModelViewer from '@/components/ModelViewer';
 // import Image from 'next/image';
 import getNotionItems from '@/utils/notionDB';
-import { notionItems } from '../page';
 
 const Page = async ({ params }) =>
 {
-    let _notionItems = notionItems;
-
-    if( Object.keys( _notionItems ).length === 0 )
-    {
-        // get the notion items again (why: removed by garbage collection)
-        _notionItems = await getNotionItems();
-
-        console.log('>> get the notion items again');
-    }
-
-    const item = _notionItems[ params.slug ];
+    // (cf) params.slug === item.name
+    const filter = { property: 'name', rich_text: {contains: params.slug} };
+    const notionItems = await getNotionItems( filter );
+    const item = notionItems[ params.slug ];
 
     if( !item )
     {
@@ -25,7 +17,7 @@ const Page = async ({ params }) =>
     }
 
     const { authors, files, features, download_size, 
-            date, price, formats, thumbnail, 
+            date, price, formats, thumbnail, preview, 
             categories, quantity, rating, name, 
             element, description, background } = item;
 
@@ -33,8 +25,7 @@ const Page = async ({ params }) =>
         <section className="text-gray-600 body-font overflow-hidden">
             <div className="container px-5 py-24 mx-auto">
                 <div className="lg:w-full mx-auto flex flex-wrap">
-                    {/* <Image className="lg:w-2/3 w-full lg:h-auto h-64 object-cover object-center rounded" src={thumbnail[0]} alt="thumbnail" width={400} height={400} priority/> */}
-                    <ModelViewer item={item} width={800} height={800} secret={process.env.MODEL_SECRET_KEY}/>
+                    <ModelViewer item={item} width={500} height={500} secret={process.env.MODEL_SECRET_KEY}/>
                     <div className="lg:w-1/3 w-full lg:pl-10 lg:py-6 mt-6 lg:mt-0">
                         <h2 className="text-sm title-font text-gray-500 tracking-widest">BRAND NAME</h2>
                         <h1 className="text-gray-900 text-3xl title-font font-medium mb-1">The Catcher in the Rye</h1>

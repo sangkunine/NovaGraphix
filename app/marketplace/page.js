@@ -1,11 +1,9 @@
 import MarketplaceItem from '../../components/MarketplaceItem';
 import getNotionItems from '../../utils/notionDB';
 
-export let notionItems = {};
-
 const Page = async () =>
 {
-    notionItems = await getNotionItems();
+    const notionItems = await getNotionItems();
 
     const notionKeys = Object.keys( notionItems );
 
@@ -21,9 +19,10 @@ const Page = async () =>
             <div className="container px-5 py-24 mx-auto">
                 <div className="flex flex-wrap -m-4">
                 {
-                    notionKeys.map( key => {
+                    notionKeys.map( key =>
+                    {
                         const item = notionItems[ key ];
-                        return <MarketplaceItem key={item.id} item={item}/>
+                        return <MarketplaceItem key={item.id} item={item}/>;
                     })
                 }
                 </div>

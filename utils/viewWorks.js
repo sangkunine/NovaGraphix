@@ -140,8 +140,6 @@ class AppWorks
         this.animator = undefined;
 
         this.background = options.background || 0x191919;
-        this.widthRatio = 1;
-        this.heightRatio = 1;
 
         JAMIE.appWorks = this;
     }

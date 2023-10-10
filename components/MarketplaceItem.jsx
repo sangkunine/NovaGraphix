@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import Image from 'next/image';
 import PreviewThumbnail from './PreviewThumbnail';
 
 const dollarFormatter = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
@@ -10,16 +9,15 @@ const decimalFormatter = new Intl.NumberFormat("en-US", { style: "decimal" });
 const MarketplaceItem = ({ item }) => {
 
     const { authors, files, features, download_size, 
-            date, price, formats, thumbnail, 
+            date, price, formats, thumbnail, preview, 
             categories, quantity, rating, name, 
             element, description, background } = item;
 
     return (
         <div className="p-4 md:w-1/3">
             <div className="hover:scale-110 h-full border-2 border-gray-200 border-opacity-60 rounded-lg overflow-hidden shadow-xl">
-                {/* thumbnail */}
-                <Link href={`/marketplace/${item.id}`}>
-                    {/* <Image className="lg:h-48 md:h-36 w-full object-cover object-center" src={thumbnail[0]} alt="thumbnail" width={720} height={400} priority/> */}
+                {/* preview & thumbnail */}
+                <Link href={`/marketplace/${item.name}`}>
                     <PreviewThumbnail item={item} width={720} height={400} />
                 </Link>
                 <div className="p-6">

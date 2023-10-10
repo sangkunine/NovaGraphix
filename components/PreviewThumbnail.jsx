@@ -1,20 +1,22 @@
 "use client"
 
 import { useState, useEffect } from 'react';
-// import Image from 'next/image';
+import Image from 'next/image';
 import JSZip from 'jszip';
 import JSZipUtils from 'jszip-utils';
 
 const PreviewThumbnail = ({ item, width, height }) =>
 {
     const [ urls, setUrls ] = useState([]);
+    const [ isPreview, setIsPreview ] = useState(false);
 
     const { authors, files, features, download_size, 
-        date, price, formats, thumbnail, 
+        date, price, formats, thumbnail, preview, 
         categories, quantity, rating, name, 
         element, description, background } = item;
 
-    let zipURL = thumbnail[0];
+    // thumbnail = [image_0.jpg]
+    // preview = [images.zip (= image_0.jpg + ... + image_15.jpg)]
 
     const mousemove = (e) =>
     {
@@ -50,13 +52,15 @@ const PreviewThumbnail = ({ item, width, height }) =>
         e.target.src = urls[ idx ];
     }
 
+    const mouseenter = () => setIsPreview( !isPreview );
+
     useEffect(() =>
     {
         const promises = [];
 
         const promise = new JSZip.external.Promise( (resolve, reject) =>
         {
-            JSZipUtils.getBinaryContent( zipURL, (err, data) =>
+            JSZipUtils.getBinaryContent( preview[0], (err, data) =>
             {
                 if( err ) {
                     reject( err );
@@ -88,11 +92,32 @@ const PreviewThumbnail = ({ item, width, height }) =>
 
     }, []);
 
-    return (
-        <img className="lg:h-48 md:h-36 w-full object-cover object-center" 
-        src={ urls[0] } alt="thumbnail" width={width} height={height} 
-        onMouseMove={ mousemove } />
-    );
+    if( isPreview && urls.length > 0 )
+    {
+        // Preview
+        return (
+            <Image className="lg:h-48 md:h-36 w-full object-cover object-center" 
+                src={urls[0]} 
+                alt={item.name} 
+                width={width} height={height} 
+                onMouseMove={mousemove} 
+                priority
+            />
+        );
+    }
+    else
+    {
+        // Thumbnail
+        return (
+            <Image className="lg:h-48 md:h-36 w-full object-cover object-center" 
+                src={thumbnail[0]} 
+                alt={item.name} 
+                width={width} height={height} 
+                onMouseEnter={mouseenter} 
+                priority
+            />
+        );
+    }
 }
 
 export default PreviewThumbnail;

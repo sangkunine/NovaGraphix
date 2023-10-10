@@ -42,7 +42,7 @@ const _prop_files = (prop) => (prop.files.map( file => file.file.url ));
 const _normalizeItem = ( item ) =>
 {
     const { authors, files, features, download_size, 
-            date, price, formats, thumbnail, 
+            date, price, formats, thumbnail, preview, 
             categories, quantity, rating, name, 
             element, description, background } = item.properties;
 
@@ -55,7 +55,8 @@ const _normalizeItem = ( item ) =>
         date:           date.date.start,                  // "2023-01-25"
         price:          price.number,                     // $ USD
         formats:        _prop_multi_select(formats),      // ["obj", "mtl"]
-        thumbnail:      _prop_files(thumbnail),           // [urls]
+        thumbnail:      _prop_files(thumbnail),           // [url]
+        preview:        _prop_files(preview),             // [url]
         categories:     _prop_multi_select(categories),   // ["Characters", "Animals"]
         quantity:       quantity.number,                  // sales quantity
         rating:         rating.select.name,               // ⭐ ~ ⭐⭐⭐⭐
@@ -98,11 +99,12 @@ async function getNotionItems( filter=undefined, sorts=undefined )
         dataItems = dataItems.map( item => _normalizeItem( item ) );
 
         dataItems.forEach( item => {
-            result[ item.id ] = item;
+            // result[ item.id ] = item;
+            result[ item.name ] = item;
         });
     }
 
-    return result; // result = { itemId: item }
+    return result; // result = { item.name: item }
 }
 
 export default getNotionItems;
