@@ -2,10 +2,6 @@
 
 const nextConfig =
 {
-    experimental: {
-        appDir: true,
-    },
-
     images: {
         domains: [
             'www.notion.so',

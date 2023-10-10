@@ -1,5 +1,5 @@
 import ModelViewer from '@/components/ModelViewer';
-import Image from 'next/image';
+// import Image from 'next/image';
 import getNotionItems from '@/utils/notionDB';
 import { notionItems } from '../page';
 
@@ -34,7 +34,7 @@ const Page = async ({ params }) =>
             <div className="container px-5 py-24 mx-auto">
                 <div className="lg:w-full mx-auto flex flex-wrap">
                     {/* <Image className="lg:w-2/3 w-full lg:h-auto h-64 object-cover object-center rounded" src={thumbnail[0]} alt="thumbnail" width={400} height={400} priority/> */}
-                    <ModelViewer item={item} width={800} height={800} />
+                    <ModelViewer item={item} width={800} height={800} secret={process.env.MODEL_SECRET_KEY}/>
                     <div className="lg:w-1/3 w-full lg:pl-10 lg:py-6 mt-6 lg:mt-0">
                         <h2 className="text-sm title-font text-gray-500 tracking-widest">BRAND NAME</h2>
                         <h1 className="text-gray-900 text-3xl title-font font-medium mb-1">The Catcher in the Rye</h1>
