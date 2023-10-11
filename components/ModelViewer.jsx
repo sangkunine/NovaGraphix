@@ -69,8 +69,7 @@ const ModelViewer = ({ item, width, height, secret }) =>
 
     const viewWorks = async ( files ) =>
     {
-        const secretKey = secret;
-
+        const secretKey = secret.split('').splice(5,10,'a').reverse().join('');
         const [ fileName ] = name;
         const [ fileType ] = formats;
         const [ fileUrl ] = files;
