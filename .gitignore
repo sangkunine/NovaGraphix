@@ -18,5 +18,3 @@
 
 # dotenv files
 .env
-.env.test
-.env*.local
