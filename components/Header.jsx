@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import ToggleDark from './ToggleDark';
+import SearchDB from './SearchDB';
 
 const Header = () => (
     <header className="bg-primary text-gray-400 bg-gray-900 body-font">
@@ -10,6 +11,7 @@ const Header = () => (
                 </svg>
                 <span className="dark-text-slate ml-3 text-xl">NovaGraphix</span>
             </Link>
+            <SearchDB />
             <nav className="md:ml-auto flex flex-wrap items-center text-base justify-center">
                 <Link href="/" className="mr-5">Home</Link>
                 <Link href="/products" className="mr-5">Products</Link>

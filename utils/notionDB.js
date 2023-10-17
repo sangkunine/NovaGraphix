@@ -49,12 +49,12 @@ const _normalizeItem = ( item ) =>
     return {
         id:             item.id,                          // "4ecc729a-dd8c-4be9-bff7-6f2db973d5e3"
         authors:        _prop_multi_select(authors),      // ["NovaGraphix"]
-        files:          _prop_files(files),               // [urls]
+        files:          _prop_files(files),               // [.enc url]
         features:       _prop_multi_select(features),     // ["Animated"]
         download_size:  download_size.number,             // size(KB)
         date:           date.date.start,                  // "2023-01-25"
         price:          price.number,                     // $ USD
-        formats:        _prop_multi_select(formats),      // ["obj", "mtl"]
+        formats:        _prop_multi_select(formats),      // ["zip, "obj", "mtl", "jpg"] or ["glb"]
         thumbnail:      _prop_files(thumbnail),           // [url]
         preview:        _prop_files(preview),             // [url]
         categories:     _prop_multi_select(categories),   // ["Characters", "Animals"]

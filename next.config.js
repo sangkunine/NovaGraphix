@@ -2,6 +2,20 @@
 
 const nextConfig =
 {
+    serverRuntimeConfig: {
+        PROJECT_ROOT: __dirname
+    },
+
+    // async redirects() {
+    //     return [
+    //         {
+    //             source: '/marketplace',
+    //             destination: '/',
+    //             permanent: true,
+    //         },
+    //     ]
+    // },
+
     images: {
         domains: [
             'www.notion.so',

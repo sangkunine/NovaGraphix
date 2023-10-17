@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useRef } from 'react';
-import JAMIE from '../utils/viewWorks';
+import JAMIE from '@/utils/viewWorks';
 
 const readfile = (file) => {
     return new Promise( (resolve) => {
@@ -71,8 +71,8 @@ const ModelViewer = ({ item, width, height, secret }) =>
     {
         const secretKey = secret.split('').splice(5,10,'a').reverse().join('');
         const [ fileName ] = name;
-        const [ fileType ] = formats;
         const [ fileUrl ] = files;
+        const fileType = formats[0];
 
         const res = await fetch( fileUrl );
         let blob = await res.blob();

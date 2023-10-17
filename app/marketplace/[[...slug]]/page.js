@@ -1,25 +1,25 @@
 import ModelViewer from '@/components/ModelViewer';
-// import Image from 'next/image';
 import getNotionItems from '@/utils/notionDB';
+import MarketplaceItem from '@/components/MarketplaceItem';
+import { decodeURIData } from '@/utils/novaUtils';
 
-const Page = async ({ params }) =>
+const ModelViewerPage = async ( itemName ) =>
 {
-    // (cf) params.slug === item.name
-    const filter = { property: 'name', rich_text: {contains: params.slug} };
+    const filter = { property: 'name', rich_text: {contains: itemName} };
     const notionItems = await getNotionItems( filter );
-    const item = notionItems[ params.slug ];
+    const item = notionItems[ itemName ];
 
     if( !item )
     {
         return (
-            <h1 className="m-6">⭐ Failed to find the selected item. If you contact us, we will take immediate action.</h1>
+            <h1 className="m-6">⭐ Failed to fetch items from database. If you contact us, we will take immediate action.</h1>
         );
     }
 
-    const { authors, files, features, download_size, 
-            date, price, formats, thumbnail, preview, 
-            categories, quantity, rating, name, 
-            element, description, background } = item;
+    // const { authors, files, features, download_size, 
+    //         date, price, formats, thumbnail, preview, 
+    //         categories, quantity, rating, name, 
+    //         element, description, background } = item;
 
     return (
         <section className="text-gray-600 body-font overflow-hidden">
@@ -101,6 +101,55 @@ const Page = async ({ params }) =>
                             </button>
                         </div>
                     </div>
+                </div>
+            </div>
+        </section>
+    );
+}
+
+const Page = async ({ params }) =>
+// params = { slug: ['a', 'b'] }
+{
+    let filter = undefined;
+    let sorts = undefined;
+
+    // console.log( 'params:', params );
+
+    if( params.slug )
+    {
+        let [ f, s ] = params.slug;
+
+        if( f === 'model' )
+        {
+            return ModelViewerPage( s ); // s = itemName
+        }
+        else
+        {
+            filter = JSON.parse( decodeURIData( f ) );
+            sorts = JSON.parse( decodeURIData( s ) );
+        }
+    }
+
+    const notionItems = await getNotionItems( filter, sorts );
+    const items = Object.values( notionItems );
+
+    if( items.length === 0 )
+    {
+        return (
+            <h1 className="m-6">⭐ Sorry we couldn't find any matches. If you contact us, we will take immediate action.</h1>
+        );
+    }
+
+    return (
+        <section className="text-gray-600 body-font">
+            <div className="container px-5 py-24 mx-auto">
+                <div className="flex flex-wrap -m-4">
+                {
+                    items.map( item =>
+                    {
+                        return <MarketplaceItem key={item.id} item={item}/>;
+                    })
+                }
                 </div>
             </div>
         </section>
