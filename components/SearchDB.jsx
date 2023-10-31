@@ -7,7 +7,7 @@ const SearchDB = () =>
 {
     const router = useRouter();
 
-    const onSumbit = (e) =>
+    const onSubmit = (e) =>
     {
         e.preventDefault(); // prevents the form from autosubmitting
 
@@ -34,7 +34,7 @@ const SearchDB = () =>
 
     return (
         <div className="mx-auto w-screen max-w-screen-sm leading-6">
-            <form onSubmit={onSumbit} action="#" method="GET" className="relative mx-auto flex w-full max-w-2xl items-center justify-between rounded-md border shadow-lg">
+            <form autoComplete="on" onSubmit={onSubmit} action="#" method="GET" className="relative mx-auto flex w-full max-w-2xl items-center justify-between rounded-md border shadow-lg">
                 <svg className="absolute left-2 block h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <circle cx="11" cy="11" r="8" className=""></circle>
                     <line x1="21" y1="21" x2="16.65" y2="16.65" className=""></line>

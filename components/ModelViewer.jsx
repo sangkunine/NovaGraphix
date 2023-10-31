@@ -67,40 +67,44 @@ const ModelViewer = ({ item, width, height, secret }) =>
 
     let loaded = false;
 
-    const viewWorks = async ( files ) =>
-    {
-        const secretKey = secret.split('').splice(5,10,'a').reverse().join('');
-        const [ fileName ] = name;
-        const [ fileUrl ] = files;
-        const fileType = formats[0];
-
-        const res = await fetch( fileUrl );
-        let blob = await res.blob();
-
-        blob = await decryptFile( secretKey, blob );
-        const file = new File( [ blob ], `${ fileName }.${ fileType }` );
-
-        const appWorks = new JAMIE.AppWorks(
-        {
-            dom: ref.current,
-            width: width,
-            height: height,
-            background: background, // 0x191919, 'default.hdr'
-        });
-        appWorks.init().animate();
-        new JAMIE.Loader( appWorks ).loadFiles( [file] );
-
-        // unmount
-        // return () => ref.current?.removeChild( JAMIE.appWorks.renderer.domElement );
-    }
-
     useEffect( () =>
     {
         if( !loaded )
         {
-            viewWorks( files );
+            (async function viewWorks( files ) {
+
+                const secretKey = secret.split('').splice(5,10,'a').reverse().join('');
+                const [ fileName ] = name;
+                const [ fileUrl ] = files;
+                const fileType = formats[0];
+
+                // fetch data
+                const res = await fetch( fileUrl );
+                let blob = await res.blob();
+
+                // decrypt file
+                blob = await decryptFile( secretKey, blob );
+                const file = new File( [ blob ], `${ fileName }.${ fileType }` );
+
+                // render model
+                const appWorks = new JAMIE.AppWorks(
+                {
+                    dom: ref.current,
+                    width: width,
+                    height: height,
+                    background: background, // 0x191919, 'default.hdr'
+                });
+                appWorks.init().animate();
+                new JAMIE.Loader( appWorks ).loadFiles( [file] );
+
+                // (cf) unmount:
+                // return () => ref.current?.removeChild( JAMIE.appWorks.renderer.domElement );
+
+            })( files );
+
             loaded = true;
         }
+
     }, [] );
 
     return (

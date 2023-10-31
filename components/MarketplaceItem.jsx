@@ -16,7 +16,6 @@ const MarketplaceItem = ({ item }) => {
     return (
         <div className="p-4 md:w-1/3">
             <div className="hover:scale-110 h-full border-2 border-gray-200 border-opacity-60 rounded-lg overflow-hidden shadow-xl">
-                {/* preview & thumbnail */}
                 <Link href={`/marketplace/model/${item.name}`}>
                     <PreviewThumbnail item={item} width={720} height={400} />
                 </Link>

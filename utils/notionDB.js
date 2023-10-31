@@ -1,11 +1,20 @@
 import * as dotenv from 'dotenv'; dotenv.config();
+import { Client } from '@notionhq/client';
+import { hashedPassword, verifyPassword } from './novaUtils';
 
-async function _getNotionItems( client, databaseId, filter=undefined, sorts=undefined )
+const NOTION_ITEMS_CLIENT = new Client({ auth: process.env.NOTION_ITEMS_TOKEN });
+const NOTION_ITEMS_ID = process.env.NOTION_ITEMS_ID;
+
+const NOTION_USERS_CLIENT = new Client({ auth: process.env.NOTION_USERS_TOKEN });
+const NOTION_USERS_ID = process.env.NOTION_USERS_ID;
+
+async function _getNotionItems( notion, databaseId, filter=undefined, sorts=undefined )
 {
     try {
         let results = [];
 
-        const response = await client.databases.query({
+        const response = await notion.databases.query(
+        {
             database_id: databaseId,
             filter: filter,
             sorts: sorts,
@@ -19,9 +28,11 @@ async function _getNotionItems( client, databaseId, filter=undefined, sorts=unde
         // keep fetching while there are more results
         while( hasMore )
         {
-            const response = await client.databases.query(
+            const response = await notion.databases.query(
             {
                 database_id: databaseId,
+                filter: filter,
+                sorts: sorts,
                 start_cursor: nextCursor,
             });
             results = [ ...results, ...response.results ];
@@ -66,6 +77,19 @@ const _normalizeItem = ( item ) =>
         background:     background.select.name,           // '0x1919', '111.hdr', '111.jpg'
     }
 }
+const _normalizeUser = ( user ) =>
+{
+    const { name, email, password, salt, date } = user.properties;
+
+    return {
+        id:         user.id,                                        // "cb6877ce-1635-44ef-8b1d-66854219d952"
+        name:       name.title.map( t => t.plain_text )[0],         // "sangkunine"
+        email:      email.email,                                    // "sangkunine@gmail.com"
+        password:   password.rich_text.map( t => t.plain_text )[0], // "hashed_password" <== crypto.pbkdf2
+        salt:       salt.rich_text.map( t => t.plain_text )[0],     // "salt" (64 bytes) <== crypto.pbkdf2
+        date:       date.date.start,                                // "2023-10-22"
+    }
+}
 
 //=====================
 //  filter examples
@@ -88,18 +112,13 @@ async function getNotionItems( filter=undefined, sorts=undefined )
 {
     const result = {};
 
-    const Client = require('@notionhq/client').Client;
-    const NOTION_CLIENT = new Client({ auth: process.env.NOTION_TOKEN });
-    const DATABASE_ID = process.env.NOTION_DATABASE_ID;
+    let items = await _getNotionItems( NOTION_ITEMS_CLIENT, NOTION_ITEMS_ID, filter, sorts );
 
-    let dataItems = await _getNotionItems( NOTION_CLIENT, DATABASE_ID, filter, sorts );
-
-    if( dataItems !== undefined )
+    if( items !== undefined )
     {
-        dataItems = dataItems.map( item => _normalizeItem( item ) );
+        items = items.map( item => _normalizeItem( item ) );
 
-        dataItems.forEach( item => {
-            // result[ item.id ] = item;
+        items.forEach( item => {
             result[ item.name ] = item;
         });
     }
@@ -107,4 +126,106 @@ async function getNotionItems( filter=undefined, sorts=undefined )
     return result; // result = { item.name: item }
 }
 
-export default getNotionItems;
+async function getNotionUsers( filter=undefined, sorts=undefined )
+{
+    const result = {};
+
+    let users = await _getNotionItems( NOTION_USERS_CLIENT, NOTION_USERS_ID, filter, sorts );
+
+    if( users !== undefined )
+    {
+        users = users.map( user => _normalizeUser( user ) );
+
+        users.forEach( user => {
+            result[ user.email ] = user;
+        });
+    }
+
+    return result; // result = { user.email: user }
+}
+
+async function authorizeUser( email, password )
+{
+    // check email
+
+    let users = await getNotionUsers({
+        property: 'email',
+        email: { equals: email }
+    });
+
+    users = Object.values( users );
+
+    if( users.length === 0 )
+    {
+        console.log( 'There is no user matching the given email...' );
+        return null;
+    }
+
+    if( users.length !== 1 )
+    {
+        console.log( 'Two or more users have the same email address...' );
+        return null;
+    }
+
+    const user = users[ 0 ];
+
+    // check password
+
+    const ok = await verifyPassword( password, user.salt, user.password );
+    if( !ok )
+    {
+        console.log( 'You have invalid password...' );
+        return null;
+    }
+
+    return {
+        id: user.id,
+        email: user.email,
+        name: user.name
+    }
+}
+
+async function registerUser( name, email, password )
+{
+    const notion = NOTION_USERS_CLIENT;
+    const databaseId = NOTION_USERS_ID;
+
+    const { salt, hash } = await hashedPassword( password );
+
+    const response = await notion.pages.create(
+    {
+        "parent": {
+            "type": "database_id",
+            "database_id": databaseId
+        },
+        "properties": {
+            "name": {
+                "title": [ { "text": { "content": name } } ]
+            },
+            "email": {
+                // "email": { "text": { "content": email } }
+                "email": email
+            },
+            "password": {
+                "rich_text": [ { "text": { "content": hash } } ]
+            },
+            "salt": {
+                "rich_text": [ { "text": { "content": salt } } ]
+            },
+            "date": {
+                "date": { "start": new Date().toISOString().slice(0, 10) } // "2023-10-22"
+            }
+        }
+    });
+
+    // (cf)
+    // response.properties = {
+    //     date: { id: 'YIhk', type: 'date', date: [Object] },
+    //     email: { id: '_A%3B%3E', type: 'email', email: '111@111.111' },
+    //     salt: { id: 'bH%40h', type: 'rich_text', rich_text: [Array] },
+    //     password: { id: 'lBqk', type: 'rich_text', rich_text: [Array] },
+    //     name: { id: 'title', type: 'title', title: [Array] }
+    // }
+}
+
+export { getNotionItems, authorizeUser, registerUser };
