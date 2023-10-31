@@ -1,7 +1,6 @@
 import { getNotionItems } from '@/utils/notionDB';
 import MarketplaceItem from '@/components/MarketplaceItem';
 import { decodeURIData } from '@/utils/novaUtils';
-import FilterDB from '@/components/FilterDB';
 
 const MarketplacePage = async ({ params }) =>
 // params = { slug: ['filters', 'sorts'] }
@@ -38,7 +37,6 @@ const MarketplacePage = async ({ params }) =>
 
     return (
         <section className="text-gray-600 body-font">
-            <FilterDB />
             <div className="container px-5 py-24 mx-auto">
                 <div className="flex flex-wrap -m-4">
                 {

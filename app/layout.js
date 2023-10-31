@@ -3,7 +3,6 @@ import { ServerThemeProvider } from '@wits/next-themes';
 import Providers from '../components/Providers';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import NextAuthProvider from '@/components/NextAuthProvider';
 
 export default function RootLayout({ children })
 {
@@ -13,11 +12,9 @@ export default function RootLayout({ children })
                 <head />
                 <body>
                     <Providers>
-                        <NextAuthProvider>
-                            <Header />
-                            {children}
-                            <Footer />
-                        </NextAuthProvider>
+                        <Header />
+                        {children}
+                        <Footer />
                     </Providers>
                 </body>
             </html>

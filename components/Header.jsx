@@ -39,7 +39,7 @@ const Header = () =>
                 {user && (
                     <>
                         <Link href="/profile" className="mr-5">Profile</Link>
-                        <span className="cursor-pointer" onClick={() => signOut()}>Logout</span>
+                        <span className="dark-text-slate mr-5 cursor-pointer" onClick={() => signOut()}>Logout</span>
                     </>
                 )}
                 <ToggleDark />
