@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import ToggleDark from './ToggleDark';
 import SearchDB from './SearchDB';
+import Products from '@/app/products/page';
 import { signOut, useSession } from "next-auth/react";
 
 const Header = () =>
@@ -24,7 +25,8 @@ const Header = () =>
                 {/* nav */}
                 <nav className="md:ml-auto flex flex-wrap items-center text-base justify-center">
                     <Link href="/" className="mr-5">Home</Link>
-                    <Link href="/products" className="mr-5">Products</Link>
+                    {/* <Link href="/products" className="mr-5">Products</Link> */}
+                    <Products />
                     <Link href="/marketplace" className="mr-5">Marketplace</Link>
                     <Link href="/contact" className="mr-5">Contact</Link>
                 </nav>

@@ -190,7 +190,7 @@ export default function FilterDB()
         setFiltering( true );
     }, [] );
 
-    useEffect( () => { import('preline') }, [] );
+    // useEffect( () => { import('preline') }, [] );
 
     return (
         Object.keys(properties).map( property =>

@@ -10,7 +10,7 @@ export default function RootLayout({ children })
         <ServerThemeProvider attribute="class">
             <html lang="en">
                 <head />
-                <body>
+                <body suppressHydrationWarning={true}>
                     <Providers>
                         <Header />
                         {children}

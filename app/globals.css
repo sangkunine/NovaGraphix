@@ -79,7 +79,7 @@ a {
     dark:hover:text-slate-50
 }
 
-p {
+p, ul {
     @apply
     text-slate-500
     dark:text-slate-400
