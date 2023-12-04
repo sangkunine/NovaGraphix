@@ -6,12 +6,6 @@
 # next.js
 /.next
 
-# vercel
-.vercel
-
-# production
-/build
-
 # misc
 .DS_Store
 *.pem
