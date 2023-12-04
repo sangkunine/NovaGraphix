@@ -1,10 +1,14 @@
-import Link from 'next/link';
+// import Link from 'next/link';
+import { ContactForm } from './form';
 
-const Page = () => (
-    <>
-        <h1>Contact page</h1>
-        <Link href="/">Back to Home page</Link>
-    </>
-);
+export default function ContactPage()
+{
+    // return <>
+    //     <h1>Contact page</h1>
+    //     <Link href="/">Back to Home page</Link>
+    // </>
 
-export default Page;
+    return (
+        <ContactForm/>
+    );
+}
