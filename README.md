@@ -1,5 +1,7 @@
 # <img src="./public/images/leaf.png" height="32px" alt="NovaGraphix"/> NovaGraphix
 
+![novagraphix](/public/images/novagraphix.jpg)
+
 **NovaGraphix** is a professional software production company. It purses the new technological innovation of the high-end graphics and computer simulation.
 
 ## Introduction
