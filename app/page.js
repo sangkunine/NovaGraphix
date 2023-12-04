@@ -265,7 +265,7 @@ export default async function HomePage()
                                 <ul className="list-disc ml-6">
                                     <li>All 3D model files in this marketplace are encrypted.</li>
                                     <li>Encrypted model files are stored in the server-side DB (currently using Notion database).</li>
-                                    <li>The saved encrypted file is sent to the client upon the client's request.</li>
+                                    <li>The saved encrypted file is sent to the client upon the client&apos;s request.</li>
                                 </ul>
                                 <p><span className={blueBoldText}>Take a look at the model</span></p>
                                 <ul className="list-disc ml-6">

@@ -31,7 +31,7 @@ const MarketplacePage = async ({ params }) =>
     if( items.length === 0 )
     {
         return (
-            <h1 className="m-6">⭐ Sorry we couldn't find any matches. If you contact us, we will take immediate action.</h1>
+            <h1 className="m-6">⭐ Sorry we couldn&apos;t find any matches. If you contact us, we will take immediate action.</h1>
         );
     }
 

@@ -65,11 +65,12 @@ const ModelViewer = ({ item, width, height, secret }) =>
 
     const ref = useRef();
 
-    let loaded = false;
+    // let loaded = false;
+    let loaded = useRef(false);
 
     useEffect( () =>
     {
-        if( !loaded )
+        if( !loaded.current )
         {
             (async function viewWorks( files ) {
 
@@ -102,7 +103,7 @@ const ModelViewer = ({ item, width, height, secret }) =>
 
             })( files );
 
-            loaded = true;
+            loaded.current = true;
         }
 
     }, [] );

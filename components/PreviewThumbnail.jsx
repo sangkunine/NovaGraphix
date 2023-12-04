@@ -90,7 +90,7 @@ const PreviewThumbnail = ({ item, width, height }) =>
             });
         });
 
-    }, []);
+    }, [ preview ]);
 
     if( isPreview && urls.length > 0 )
     {
