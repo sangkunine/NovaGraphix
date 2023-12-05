@@ -11,10 +11,16 @@ export const options = {
         strategy: "jwt",
     },
     providers: [
+        // # Google Credentials
+        // https://console.cloud.google.com/apis/credentials 에서
+        // sangkunine 로그인 ==> Credentials의 NovaGraphix를 클릭 ==> Client ID + Client secret 를 확인
         GoogleProvider({
             clientId: process.env.GOOGLE_CLIENT_ID,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET,
         }),
+        // # Github Credentials
+        // https://github.com/settings/applications/2353950 에서
+        // sangkunine 로그인 ==> nextauth-nova ==> Client ID + Client secrets 를 확인
         GitHubProvider({
             clientId: process.env.GITHUB_ID,
             clientSecret: process.env.GITHUB_SECRET,
