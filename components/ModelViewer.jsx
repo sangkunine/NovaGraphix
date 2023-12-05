@@ -58,10 +58,10 @@ const decryptFile = async ( secretKey, file ) =>
 
 const ModelViewer = ({ item, width, height, secret }) =>
 {
-    const { authors, files, features, download_size, 
-            date, price, formats, thumbnail, preview, 
-            categories, quantity, rating, name, 
-            element, description, background } = item;
+    // const { authors, files, features, download_size, 
+    //         date, price, formats, thumbnail, preview, 
+    //         categories, quantity, rating, name, 
+    //         element, description, background } = item;
 
     const ref = useRef();
 
@@ -72,6 +72,11 @@ const ModelViewer = ({ item, width, height, secret }) =>
     {
         if( !loaded.current )
         {
+            const { authors, files, features, download_size, 
+                date, price, formats, thumbnail, preview, 
+                categories, quantity, rating, name, 
+                element, description, background } = item;
+
             (async function viewWorks( files ) {
 
                 const secretKey = secret.split('').splice(5,10,'a').reverse().join('');
@@ -106,7 +111,7 @@ const ModelViewer = ({ item, width, height, secret }) =>
             loaded.current = true;
         }
 
-    }, [] );
+    }, [ item ] );
 
     return (
         <div ref={ref}></div>   // ref.current = <div>

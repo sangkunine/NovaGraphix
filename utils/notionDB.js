@@ -1,4 +1,4 @@
-import * as dotenv from 'dotenv'; dotenv.config();
+// import * as dotenv from 'dotenv'; dotenv.config();
 import { Client } from '@notionhq/client';
 import { hashedPassword, verifyPassword } from './novaUtils';
 

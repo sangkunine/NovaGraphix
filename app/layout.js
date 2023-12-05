@@ -1,8 +1,11 @@
+import dotenv from 'dotenv';
 import './globals.css';
 import { ServerThemeProvider } from '@wits/next-themes';
 import Providers from '../components/Providers';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+
+dotenv.config();
 
 export default function RootLayout({ children })
 {
