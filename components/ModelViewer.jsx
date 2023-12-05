@@ -111,7 +111,7 @@ const ModelViewer = ({ item, width, height, secret }) =>
             loaded.current = true;
         }
 
-    }, [ item ] );
+    }, [ item, width, height, secret ] );
 
     return (
         <div ref={ref}></div>   // ref.current = <div>
