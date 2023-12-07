@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import JAMIE from '@/utils/viewWorks';
+import Loading from '../app/loading';
 
 const readfile = (file) => {
     return new Promise( (resolve) => {
@@ -56,65 +57,62 @@ const decryptFile = async ( secretKey, file ) =>
 	return blob;
 }
 
+const fetchFile = ({ secretKey, fileUrl, fileName, fileType }) =>
+(
+    new Promise( resolve => {
+        fetch( fileUrl )
+        .then( res => res.blob() )
+        .then( blob => decryptFile( secretKey, blob ) )
+        .then( blob => new File( [ blob ], `${ fileName }.${ fileType }` ) )
+        .then( file => resolve( file ) );
+    })
+)
+
 const ModelViewer = ({ item, width, height, secret }) =>
 {
-    // const { authors, files, features, download_size, 
-    //         date, price, formats, thumbnail, preview, 
-    //         categories, quantity, rating, name, 
-    //         element, description, background } = item;
+    const viewer = useRef( null );
+    let loading = useRef( false );
 
-    const ref = useRef();
-
-    // let loaded = false;
-    let loaded = useRef(false);
-
-    useEffect( () =>
+    if( !loading.current )
     {
-        if( !loaded.current )
+        loading.current = true;
+
+        const { authors, files, features, download_size, 
+            date, price, formats, thumbnail, preview, 
+            categories, quantity, rating, name, 
+            element, description, background } = item;
+
+        const secretKey = secret.split('').splice(5,10,'a').reverse().join('');
+        const [ fileName ] = name;
+        const [ fileUrl ] = files;
+        const fileType = formats[0];
+
+        return fetchFile({ secretKey, fileUrl, fileName, fileType }).then( file =>
         {
-            const { authors, files, features, download_size, 
-                date, price, formats, thumbnail, preview, 
-                categories, quantity, rating, name, 
-                element, description, background } = item;
+            const appWorks = new JAMIE.AppWorks(
+            {
+                dom: viewer.current,
+                width: width,
+                height: height,
+                background: background, // 0x191919, 'default.hdr'
+            });
+            appWorks.init().animate();
+            new JAMIE.Loader( appWorks ).loadFiles( [file] );
 
-            (async function viewWorks( files ) {
+            viewer.current?.removeChild( viewer.current.firstChild );
 
-                const secretKey = secret.split('').splice(5,10,'a').reverse().join('');
-                const [ fileName ] = name;
-                const [ fileUrl ] = files;
-                const fileType = formats[0];
-
-                // fetch data
-                const res = await fetch( fileUrl );
-                let blob = await res.blob();
-
-                // decrypt file
-                blob = await decryptFile( secretKey, blob );
-                const file = new File( [ blob ], `${ fileName }.${ fileType }` );
-
-                // render model
-                const appWorks = new JAMIE.AppWorks(
-                {
-                    dom: ref.current,
-                    width: width,
-                    height: height,
-                    background: background, // 0x191919, 'default.hdr'
-                });
-                appWorks.init().animate();
-                new JAMIE.Loader( appWorks ).loadFiles( [file] );
-
-                // (cf) unmount:
-                // return () => ref.current?.removeChild( JAMIE.appWorks.renderer.domElement );
-
-            })( files );
-
-            loaded.current = true;
-        }
-
-    }, [ item, width, height, secret ] );
+            return <div ref={viewer}></div>;
+        });
+    }
 
     return (
-        <div ref={ref}></div>   // ref.current = <div>
+        // viewer.current = <div>
+        <div ref={viewer}>
+            <div className="flex flex-col item-center justify-center w-[500px] h-[500px] border-solid border-2 border-indigo-600">
+                <h1 className="text-center mb-3">Loading...</h1>
+                <Loading />
+            </div>
+        </div>
     );
 }
 

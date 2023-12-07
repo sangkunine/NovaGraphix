@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import Image from 'next/image';
 
+import { RunNatureWorks } from '@/components/RunWorks';
+
 import leaf from '@/public/images/leaf.png';
 
 import windyTerrain from '@/public/images/natureworks/windyTerrain.jpg';
@@ -293,7 +295,7 @@ export default function NatureWorksPage()
                         <Link href="https://github.com/sangkunine/NatureWorks" className="text-blue-800 hover:text-blue-600 dark:text-blue-500 dark:hover:text-blue-400">here</Link> 
                         <span className="ml-1">for detailed instructions on how to use this software.</span>
                     </div>
-                    <iframe src="https://sangkunine.github.io/NatureWorks/" width="100%" height={1080*0.75} />
+                    <RunNatureWorks width="100%" height={1080*0.75} />
                 </div>
 
             </div>

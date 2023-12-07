@@ -35,8 +35,7 @@ export const LoginForm = () =>
 
             setLoading( false );
 
-            console.log( res );
-            if( !res?.error )
+            if( !res.error )
             {
                 router.push( callbackUrl );
             }
@@ -85,7 +84,7 @@ export const LoginForm = () =>
 
                                 {/* error */}
                                 {error && (
-                                    <p className="text-center bg-red-300 py-4 mb-6 rounded">{error}</p>
+                                    <p className="text-center text-slate-900 dark:text-slate-900 bg-red-300 py-3 mb-6 rounded">{error}</p>
                                 )}
 
                                 {/* Google Credentials */}

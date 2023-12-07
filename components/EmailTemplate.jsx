@@ -1,13 +1,15 @@
-import * as React from "react";
-
-export const EmailTemplate = ({ firstName, message }) =>
+const EmailTemplate = ({ firstName, message }) =>
 (
-  <div>
-    <h1>Welcome, {firstName}!</h1>
-    <p>Thank you for sending me a message. I will get back with you as soon as I can.</p>
-    <h1>Message from {firstName}:</h1>
-    <p>{message}</p>
-  </div>
+    <div class="text-md mx-4 my-4">
+        <p class="mb-4">Dear {firstName},</p>
+        <p>Thank you for contacting us. We received your email inquiring about the following:</p>
+        <div class="mb-4 border-solid border-2 border-gray-400 rounded">
+            <p class="mx-2">{message}</p>
+        </div>
+        <p class="mb-4">We will get back with you as soon as we can.</p>
+        <p>Sincerely,</p>
+        <p class="mb-4">The NovaGraphix team</p>
+    </div>
 );
 
 export default EmailTemplate;

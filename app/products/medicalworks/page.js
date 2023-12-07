@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import Image from 'next/image';
 
+import { RunMedicalWorks } from '@/components/RunWorks';
+
 import leaf from '@/public/images/leaf.png';
 import medSlicer from '@/public/images/medicalworks/medSlicer.jpg';
 // import medVolume from '@/public/images/medicalworks/medVolume.jpg';
@@ -140,7 +142,7 @@ export default function MedicalWorksPage()
                         <Link href="https://github.com/sangkunine/MedicalWorks" className="text-blue-800 hover:text-blue-600 dark:text-blue-500 dark:hover:text-blue-400">here</Link> 
                         <span className="ml-1">for detailed instructions on how to use this software.</span>
                     </div>
-                    <iframe src="https://sangkunine.github.io/MedicalWorks/" width="100%" height={1080*0.75} />
+                    <RunMedicalWorks width="100%" height={1080*0.75} />
                 </div>
             </div>
         </section>

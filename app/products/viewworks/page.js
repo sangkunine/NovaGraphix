@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import Image from 'next/image';
 
+import { RunViewWorks } from '@/components/RunWorks';
+
 import leaf from '@/public/images/leaf.png';
 import viewExamples from '@/public/images/viewworks/viewExamples.jpg';
 
@@ -116,7 +118,7 @@ export default function ViewWorksPage()
                         Try the <Link href="https://github.com/sangkunine/ViewWorks" className="text-blue-800 hover:text-blue-600 dark:text-blue-500 dark:hover:text-blue-400">ViewWorks</Link>
                     </h1>
                     <p className="mb-2">To view your 3D models, drag & drop the model file(s) onto the browser. An upgraded version will be released soon. Please contact us if needed for your project.</p>
-                    <iframe src="https://sangkunine.github.io/ViewWorks/" width="100%" height={1080*0.75} />
+                    <RunViewWorks width="100%" height={1080*0.75} />
                 </div>
             </div>
         </section>

@@ -1,21 +1,30 @@
 "use client"
 
+import Link from 'next/link';
 import { signIn } from "next-auth/react";
 import { useState } from "react";
 
 export const RegisterForm = () =>
 {
-    const [ loading, setLoading ] = useState(false);
+    const [ loading, setLoading ] = useState( false );
     const [ formValues, setFormValues ] = useState({
         name: "",
         email: "",
         password: "",
     });
     const [ error, setError ] = useState("");
+    const [ checked, setChecked ] = useState( false );
 
     const onSubmit = async (e) =>
     {
         e.preventDefault();
+
+        if( !checked )
+        {
+            alert( "Please accept the Terms & Conditions and Privacy Policy to continue" );
+            return;
+        }
+
         setLoading( true );
         setFormValues({ name: "", email: "", password: "" });
 
@@ -57,9 +66,14 @@ export const RegisterForm = () =>
         }
     };
 
-    const handleChange = (event) => {
-        const { name, value } = event.target;
+    const handleChange = (e) => {
+        const { name, value } = e.target;
         setFormValues({ ...formValues, [name]: value });
+    };
+
+    const checkHandler = (e) => {
+        // console.log('checked:', e.target.checked);
+        setChecked( e.target.checked );
     };
 
     const inputStyle = "py-3 px-4 block w-full border border-gray-200 rounded-md text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400";
@@ -67,8 +81,8 @@ export const RegisterForm = () =>
     const svgPath = "M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8 4a.905.905 0 0 0-.9.995l.35 3.507a.552.552 0 0 0 1.1 0l.35-3.507A.905.905 0 0 0 8 4zm.002 6a1 1 0 1 0 0 2 1 1 0 0 0 0-2z";
     const labelStyle = "block text-sm mb-2 dark:text-white";
     const errStyle = "hidden text-xs text-red-600 mt-2";
-    const checkboxStyle = "shrink-0 mt-0.5 border-gray-200 rounded text-blue-600 pointer-events-none focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-700 dark:checked:bg-blue-500 dark:checked:border-blue-500 dark:focus:ring-offset-gray-800";
     const signupStyle = "py-3 px-4 inline-flex justify-center items-center gap-2 rounded-md border border-transparent font-semibold bg-blue-500 text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all text-sm dark:focus:ring-offset-gray-800";
+    const acceptStyle = "text-blue-600 decoration-2 hover:underline font-medium";
 
     return (
         <div className="h-full dark:bg-slate-900 bg-gray-100 flex h-full items-center py-16">
@@ -160,10 +174,12 @@ export const RegisterForm = () =>
                                     {/* Checkbox */}
                                     <div className="flex items-center">
                                         <div className="flex">
-                                            <input id="remember-me" name="remember-me" type="checkbox" className={checkboxStyle}/>
+                                            <input id="remember-me" name="remember-me" type="checkbox" onChange={checkHandler} />
                                         </div>
                                         <div className="ml-3">
-                                            <label htmlFor="remember-me" className="text-sm dark:text-white">I accept the <a className="text-blue-600 decoration-2 hover:underline font-medium" href="#">Terms and Conditions</a></label>
+                                            <label htmlFor="remember-me" className="text-sm dark:text-white">
+                                                I accept the <Link target="_blank" href="/register/terms" className={acceptStyle}>Terms & Conditions</Link> and <Link target="_blank" href="/register/privacy" className={acceptStyle}>Privacy Policy</Link>
+                                            </label>
                                         </div>
                                     </div>
 

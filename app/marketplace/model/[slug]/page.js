@@ -1,5 +1,5 @@
 import { getNotionItems } from '@/utils/notionDB';
-import ModelViewer from '@/components/ModelViewer';
+import dynamic from 'next/dynamic';
 
 const ModelPage = async ({ params }) =>
 {
@@ -15,10 +15,11 @@ const ModelPage = async ({ params }) =>
         );
     }
 
-    // const { authors, files, features, download_size, 
-    //         date, price, formats, thumbnail, preview, 
-    //         categories, quantity, rating, name, 
-    //         element, description, background } = item;
+    const ModelViewer = dynamic(
+        () => import('@/components/ModelViewer'), {
+        ssr: false,
+        loading: () => <p>Loading...</p>
+    });
 
     return (
         <section className="text-gray-600 body-font overflow-hidden">
