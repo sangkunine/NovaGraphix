@@ -3,6 +3,8 @@
  * Copyright 2022-2023 NovaGraphix
  * (created: Feb 18, 2023)
  */
+'use client'
+
 import * as THREE from 'three';
 
 import { OrbitControls } from 'three/addons/controls/OrbitControls';
@@ -2446,6 +2448,62 @@ JAMIE.getBoundingBox = function( object )
 
     //     return unionBox;
     // }
+}
+
+JAMIE.getVertexFaceCount = function( object )
+{
+    let nvertices = 0, nfaces = 0;
+
+    if( object.isDiscreteGeometry )
+    {
+        nvertices = object.vertices.length;
+        nfaces = object.faces.length;
+    }
+
+    else if( object.isBufferGeometry )
+    {
+        nvertices = object.attributes.position.count;
+        nfaces = object.index ? object.index.count / 3 : object.attributes.position.count / 3;
+    }
+
+    else if( object.isObject3D )
+    {
+        object.traverse( child =>
+        {
+            if( child.isMesh )
+            {
+                let count = JAMIE.getVertexFaceCount( child.geometry );
+                nvertices += count.nvertices;
+                nfaces += count.nfaces;
+            }
+        });
+    }
+
+    return { nvertices, nfaces };
+}
+
+JAMIE.getTextureCount = function( object )
+{
+    let ntextures = 0;
+    JAMIE.traverseMaterials( object, material =>
+    {
+        let keys = Object.keys( material ).filter( key => key.match(/map$/i) );
+        keys = keys.filter( key => material[ key ] );
+        ntextures += keys.length;
+    });
+    return ntextures;
+}
+
+JAMIE.getMaterialCount = function( object )
+{
+    const materials = new Set();
+
+    object.traverse( child =>
+    {
+        if ( child.material ) materials.add( child.material );
+    });
+
+    return materials.size;
 }
 
 //==============================================================================

@@ -1,8 +1,10 @@
 "use client"
 
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
 import JAMIE from '@/utils/viewWorks';
 import Loading from '../app/loading';
+
+const parentClientRect = (element) => element?.parentElement?.getBoundingClientRect();
 
 const readfile = (file) => {
     return new Promise( (resolve) => {
@@ -57,59 +59,61 @@ const decryptFile = async ( secretKey, file ) =>
 	return blob;
 }
 
-const fetchFile = ({ secretKey, fileUrl, fileName, fileType }) =>
-(
-    new Promise( resolve => {
+const fetchFile = ({ item, secret }) =>
+{
+    const { authors, files, features, download_size, 
+        date, price, formats, thumbnail, preview, 
+        categories, quantity, rating, name, 
+        element, description, background } = item;
+
+    const secretKey = secret.split('').splice(5,10,'a').reverse().join('');
+    const [ fileName ] = name;
+    const [ fileUrl ] = files;
+    const fileType = formats[0];
+
+    return new Promise( resolve => {
         fetch( fileUrl )
         .then( res => res.blob() )
         .then( blob => decryptFile( secretKey, blob ) )
         .then( blob => new File( [ blob ], `${ fileName }.${ fileType }` ) )
         .then( file => resolve( file ) );
-    })
-)
+    });
+}
 
-const ModelViewer = ({ item, width, height, secret }) =>
+const ModelViewer = ({ item, secret }) =>
 {
-    const viewer = useRef( null );
-    let loading = useRef( false );
+    const ref = useRef( null );
+    const loading = useRef( false );
 
     if( !loading.current )
     {
         loading.current = true;
 
-        const { authors, files, features, download_size, 
-            date, price, formats, thumbnail, preview, 
-            categories, quantity, rating, name, 
-            element, description, background } = item;
-
-        const secretKey = secret.split('').splice(5,10,'a').reverse().join('');
-        const [ fileName ] = name;
-        const [ fileUrl ] = files;
-        const fileType = formats[0];
-
-        return fetchFile({ secretKey, fileUrl, fileName, fileType }).then( file =>
+        return fetchFile({ item, secret }).then( file =>
         {
+            ref.current?.removeChild( ref.current.firstChild );
+
+            const rect = parentClientRect( ref.current );
+
             const appWorks = new JAMIE.AppWorks(
             {
-                dom: viewer.current,
-                width: width,
-                height: height,
-                background: background, // 0x191919, 'default.hdr'
+                dom: ref.current,
+                width: rect.width,
+                height: rect.height,
+                background: item.background, // 0x191919, 'default.hdr'
             });
             appWorks.init().animate();
-            new JAMIE.Loader( appWorks ).loadFiles( [file] );
 
-            viewer.current?.removeChild( viewer.current.firstChild );
+            new JAMIE.Loader( appWorks ).loadFiles([ file ]);
 
-            return <div ref={viewer}></div>;
+            return <div ref={ref}></div>;
         });
     }
 
     return (
-        // viewer.current = <div>
-        <div ref={viewer}>
-            <div className="flex flex-col item-center justify-center w-[500px] h-[500px] border-solid border-2 border-indigo-600">
-                <h1 className="text-center mb-3">Loading...</h1>
+        <div ref={ref}>
+            {/* (cf) border-solid border-2 border-indigo-600 */}
+            <div className="flex flex-col item-center justify-center w-[500px] h-[500px]">
                 <Loading />
             </div>
         </div>
