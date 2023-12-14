@@ -1,7 +1,8 @@
 "use client"
 
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
 import JAMIE from '@/utils/viewWorks';
+import Loading from '../app/loading';
 
 const parentClientRect = (element) => element?.parentElement?.getBoundingClientRect();
 
@@ -58,61 +59,64 @@ const decryptFile = async ( secretKey, file ) =>
 	return blob;
 }
 
+const fetchFile = ({ item, secret }) =>
+{
+    const { authors, files, features, download_size, 
+        date, price, formats, thumbnail, preview, 
+        categories, quantity, rating, name, 
+        element, description, background } = item;
+
+    const secretKey = secret.split('').splice(5,10,'a').reverse().join('');
+    const [ fileName ] = name;
+    const [ fileUrl ] = files;
+    const fileType = formats[0];
+
+    return new Promise( resolve => {
+        fetch( fileUrl )
+        .then( res => res.blob() )
+        .then( blob => decryptFile( secretKey, blob ) )
+        .then( blob => new File( [ blob ], `${ fileName }.${ fileType }` ) )
+        .then( file => resolve( file ) );
+    });
+}
+
 const ModelViewer = ({ item, secret }) =>
 {
     const ref = useRef( null );
     const loading = useRef( false );
 
-    useEffect( () =>
+    if( !loading.current )
     {
-        if( !loading.current )
+        loading.current = true;
+
+        return fetchFile({ item, secret }).then( file =>
         {
-            loading.current = true;
+            ref.current?.removeChild( ref.current.firstChild );
 
-            const { authors, files, features, download_size, 
-                date, price, formats, thumbnail, preview, 
-                categories, quantity, rating, name, 
-                element, description, background } = item;
+            const rect = parentClientRect( ref.current );
 
-            (async function viewWorks( files ) {
+            const appWorks = new JAMIE.AppWorks(
+            {
+                dom: ref.current,
+                width: rect.width,
+                height: rect.height,
+                background: item.background, // 0x191919, 'default.hdr'
+            });
+            appWorks.init().animate();
 
-                const secretKey = secret.split('').splice(5,10,'a').reverse().join('');
-                const [ fileName ] = name;
-                const [ fileUrl ] = files;
-                const fileType = formats[0];
+            new JAMIE.Loader( appWorks ).loadFiles([ file ]);
 
-                // fetch data
-                const res = await fetch( fileUrl );
-                let blob = await res.blob();
-
-                // decrypt file
-                blob = await decryptFile( secretKey, blob );
-                const file = new File( [ blob ], `${ fileName }.${ fileType }` );
-
-                let rect = parentClientRect( ref.current );
-                if( !rect ) rect = { width: 500, height: 500 }
-
-                const appWorks = new JAMIE.AppWorks(
-                {
-                    dom: ref.current,
-                    width: rect.width,
-                    height: rect.height,
-                    background: background, // 0x191919, 'default.hdr'
-                });
-                appWorks.init().animate();
-
-                new JAMIE.Loader( appWorks ).loadFiles( [file] );
-
-                // (cf) unmount:
-                // return () => ref.current?.removeChild( JAMIE.appWorks.renderer.domElement );
-
-            })( files );
-        }
-
-    }, [ item, secret ] );
+            return <div ref={ref}></div>;
+        });
+    }
 
     return (
-        <div ref={ref}></div>
+        <div ref={ref}>
+            {/* (cf) border-solid border-2 border-indigo-600 */}
+            <div className="flex flex-col item-center justify-center w-[500px] h-[500px]">
+                <Loading />
+            </div>
+        </div>
     );
 }
 

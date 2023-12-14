@@ -185,7 +185,6 @@ export const SelectAnimationButton = () =>
                 {
                     if( object.animations?.length > 0 )
                     {
-                        console.log( '>> # clips =', object.animations );
                         animClips.current = removeDuplicates( object.animations );
                         animObject.current = object;
                         return;
