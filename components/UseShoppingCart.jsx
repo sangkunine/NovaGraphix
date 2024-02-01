@@ -2,7 +2,7 @@
 
 import * as React from "react";
 
-import useLocalStorage from "./useLocalStorage";
+import useLocalStorage from "@/components/UseLocalStorage";
 
 // # cart-item
 //     id,             // string
