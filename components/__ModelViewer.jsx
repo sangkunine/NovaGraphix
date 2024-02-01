@@ -1,7 +1,7 @@
 "use client"
 
 import { useRef } from 'react';
-import JAMIE from '@/utils/viewWorks';
+import JAMIE from '@/utils/jamieWorks';
 import Loading from '../app/loading';
 
 const parentClientRect = (element) => element?.parentElement?.getBoundingClientRect();

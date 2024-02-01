@@ -177,8 +177,9 @@ class AppWorks
         }
         this.renderer.setPixelRatio( Math.min( window.devicePixelRatio, 2 ) );
         this.renderer.shadowMap.enabled = true;
+        this.renderer.shadowMap.needsUpdate = true;
         this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-        this.renderer.outputColorSpace = THREE.SRGBColorSpace;//default
+        this.renderer.outputColorSpace = THREE.SRGBColorSpace;
         this.renderer.toneMapping = THREE.LinearToneMapping;
         this.renderer.toneMappingExposure = 1;
 
@@ -370,7 +371,7 @@ class AppWorks
             break;
 
         case 66: //b (demo)
-            // JAMIE.demoApplication();
+            JAMIE.demoApplication();
             break;
 
         case 79: // o: stop the active action
@@ -1014,7 +1015,6 @@ JAMIE.Loader = function( appWorks )
             manager.onProgress = (url, itemsLoaded, itemsTotal) => { JAMIE.updateProgressbar( itemsLoaded, itemsTotal ); }
             manager.onLoad     = () => { JAMIE.hideProgressbar(); } // cf: JAMIE.removeProgressbar()
             manager.onError    = url => { JAMIE.errorProgressbar( 'There was an error loading ' + url ); }
-
 			manager.setURLModifier( function ( url ) {
 
                 url = url.replace( /^(\.?\/)/, '' ); // remove './'
@@ -1031,8 +1031,7 @@ JAMIE.Loader = function( appWorks )
 
 				return url;
 
-			} );
-
+			});
             manager.addHandler( /\.tga$/i, new TGALoader() );
 
             //
@@ -1074,7 +1073,7 @@ JAMIE.Loader = function( appWorks )
 		var reader = new FileReader();
 		reader.addEventListener( 'progress', function ( event ) {
 
-			var size = '(' + Math.floor( event.total / 1000 ).format() + ' KB)';
+			var size = '(' + Math.floor( event.total / 1000 ).toLocaleString() + ' KB)';
 			var progress = Math.floor( ( event.loaded / event.total ) * 100 ) + '%';
 
 			console.log( 'Loading', filename, size, progress );
@@ -1089,7 +1088,7 @@ JAMIE.Loader = function( appWorks )
 
                     var loader = new TDSLoader( manager );
                     var object = loader.parse( event.target.result );
-                    
+
                     object.name = filename;
 
                     addObject( object );
@@ -1105,7 +1104,7 @@ JAMIE.Loader = function( appWorks )
 
                     var loader = new ThreeMFLoader( manager );
 
-                    loader.addExtension( ThreeMFLoader.MaterialsAndPropertiesExtension );
+                    // loader.addExtension( ThreeMFLoader.MaterialsAndPropertiesExtension );
 
                     var object = loader.parse( event.target.result );
                     
@@ -1160,8 +1159,8 @@ JAMIE.Loader = function( appWorks )
 					var contents = event.target.result;
 
 					var loader = new DRACOLoader( manager );
-					loader.setDecoderPath( 'js/draco/' );
-					loader.decodeDracoFile( contents, function ( geometry ) {
+					loader.setDecoderPath( '/js/draco/' );
+					loader.parse( contents, function ( geometry ) {
 
                         geometry.center(); // jamie
                         JAMIE.computeVertexNormals( geometry );; // jamie
@@ -1186,6 +1185,7 @@ JAMIE.Loader = function( appWorks )
 
 						}
 
+                        loader.dispose();
                         addObject( object );
 
 					} );
@@ -1220,17 +1220,13 @@ JAMIE.Loader = function( appWorks )
 
                     var contents = event.target.result;
 
-                    var loader = new MD2Loader( manager );
-
-                    var geometry = loader.parse( contents );
-
+                    var geometry = new MD2Loader( manager ).parse( contents );
                     var texture = null;
                     if( scope.imageFiles.length === 1 ) // cf: one md2 model has only one texture
                     {
                         texture = new THREE.TextureLoader().load( URL.createObjectURL( scope.imageFiles[0] ) );
                     }
                     var material = new THREE.MeshStandardMaterial({ map: texture });
-
                     var mesh = new THREE.Mesh( geometry, material );
 
                     mesh.mixer = new THREE.AnimationMixer( mesh );                    
@@ -1246,18 +1242,11 @@ JAMIE.Loader = function( appWorks )
 
 			case 'glb':
 
-				reader.addEventListener( 'load', function ( event ) {
+				reader.addEventListener( 'load', async function ( event ) {
 
 					var contents = event.target.result;
 
-					var dracoLoader = new DRACOLoader( manager ).setDecoderPath( 'js/draco/' );
-                    var ktx2Loader = new KTX2Loader( manager ).setTranscoderPath( 'js/basis/' );
-
-                    var loader = new GLTFLoader( manager )
-                        .setCrossOrigin('anonymous')
-                        .setDRACOLoader( dracoLoader )
-                        .setKTX2Loader( ktx2Loader.detectSupport( JAMIE.appWorks.renderer ) )
-                        .setMeshoptDecoder( MeshoptDecoder );
+                    const loader = await createGLTFLoader( manager );
 
 					loader.parse( contents, '', function ( result ) {
 
@@ -1269,6 +1258,9 @@ JAMIE.Loader = function( appWorks )
 
 						addAnimation( scene, result.animations );
                         addObject( scene );
+
+                        loader.dracoLoader.dispose();
+						loader.ktx2Loader.dispose();
 
 					} );
 
@@ -1279,28 +1271,17 @@ JAMIE.Loader = function( appWorks )
 
 			case 'gltf':
 
-				reader.addEventListener( 'load', function ( event ) {
+				reader.addEventListener( 'load', async function ( event ) {
 
 					var contents = event.target.result;
 
-					var loader;
-
-					if ( isGLTF1( contents ) ) {
-
-						alert( 'Import of glTF asset not possible. Only versions >= 2.0 are supported. Please try to upgrade the file to glTF 2.0 using glTF-Pipeline.' );
-
-					} else {
-
-                        var dracoLoader = new DRACOLoader( manager ).setDecoderPath( 'js/draco/' );
-                        var ktx2Loader = new KTX2Loader( manager ).setTranscoderPath( 'js/basis/' );
-
-                        var loader = new GLTFLoader( manager )
-                            .setCrossOrigin('anonymous')
-                            .setDRACOLoader( dracoLoader )
-                            .setKTX2Loader( ktx2Loader.detectSupport( JAMIE.appWorks.renderer ) )
-                            .setMeshoptDecoder( MeshoptDecoder );
-
-					}
+					// let loader;
+					// if ( isGLTF1( contents ) ) {
+					// 	alert( 'Import of glTF asset not possible. Only versions >= 2.0 are supported. Please try to upgrade the file to glTF 2.0 using glTF-Pipeline.' );
+					// } else {
+                    //     loader = await createGLTFLoader( manager );
+					// }
+                    const loader = await createGLTFLoader( manager );
 
 					loader.parse( contents, '', function ( result ) {
 
@@ -1312,6 +1293,9 @@ JAMIE.Loader = function( appWorks )
 
 						addAnimation( scene, result.animations );
                         addObject( scene );
+
+                        loader.dracoLoader.dispose();
+						loader.ktx2Loader.dispose();
 
 					} );
 
@@ -1363,27 +1347,6 @@ JAMIE.Loader = function( appWorks )
 					collada.scene.name = filename;
 
                     addObject( collada.scene );
-
-				}, false );
-				reader.readAsArrayBuffer( file );
-
-				break;
-
-			case 'md2':
-
-				reader.addEventListener( 'load', function ( event ) {
-
-					var contents = event.target.result;
-
-					var geometry = new MD2Loader( manager ).parse( contents );
-					var material = new THREE.MeshStandardMaterial();
-
-					var mesh = new THREE.Mesh( geometry, material );
-					mesh.mixer = new THREE.AnimationMixer( mesh );
-					mesh.name = filename;
-
-					addAnimation( mesh, geometry.animations );
-                    addObject( mesh );
 
 				}, false );
 				reader.readAsArrayBuffer( file );
@@ -1654,7 +1617,10 @@ JAMIE.Loader = function( appWorks )
 				break;
 
 			default:
-                // console.log( 'Unsupported file format:', extension );
+                if( !['png', 'jpg', 'gif', 'bmp', 'tga', 'mtl', 'bin'].includes( extension ) )
+                {
+                    console.log( 'Unsupported 3D file format:', extension );
+                }
 				break;
 
 		}
@@ -1740,109 +1706,337 @@ JAMIE.Loader = function( appWorks )
 
 	}
 
-	function handleZIP( contents ) {
+	async function handleZIP( contents ) {
 
-		var zip = unzipSync( new Uint8Array( contents ) );
+		const zip = unzipSync( new Uint8Array( contents ) );
 
-		// Poly
+        const manager = new THREE.LoadingManager();
+        manager.onStart    = () => { JAMIE.createProgressbar(); }
+        manager.onProgress = (url, itemsLoaded, itemsTotal) => { JAMIE.updateProgressbar( itemsLoaded, itemsTotal ); }
+        manager.onLoad     = () => { JAMIE.hideProgressbar(); } // cf: JAMIE.removeProgressbar()
+        manager.onError    = url => { JAMIE.errorProgressbar( 'There was an error loading ' + url ); }
+        manager.setURLModifier( ( url ) =>
+        {
+            const file = zip[ url ];
+            if( file )
+            {
+                console.log( 'Loading', url );
+                const blob = new Blob( [ file.buffer ], { type: 'application/octet-stream' } );
+                return URL.createObjectURL( blob );
+            }
+            return url;
+        });
+        manager.addHandler( /\.tga$/i, new TGALoader() );
 
-		// if ( zip[ 'model.obj' ] && zip[ 'materials.mtl' ] ) {
-		// 	var materials = new MTLLoader().parse( strFromU8( zip[ 'materials.mtl' ] ) );
-		// 	var object = new OBJLoader().setMaterials( materials ).parse( strFromU8( zip[ 'model.obj' ] ) );
-        //     addObject( object );
-		// }
-
+        // OBJ & MTL
         let bufferMTL = null, bufferOBJ = null;
 
-		//
+		for( let path in zip )
+        {
+            const file = zip[ path ];
 
-		for ( var path in zip ) {
+            // data from the file
+            // 1) binary_data = file.buffer
+            // 2) string_data = strFromU8( file )
 
-            var file = zip[ path ];
+			const extension = path.split( '.' ).pop().toLowerCase();
 
-            var manager = new THREE.LoadingManager();
-            manager.onStart    = () => { JAMIE.createProgressbar(); }
-            manager.onProgress = (url, itemsLoaded, itemsTotal) => { JAMIE.updateProgressbar( itemsLoaded, itemsTotal ); }
-            manager.onLoad     = () => { JAMIE.hideProgressbar(); } // cf: JAMIE.removeProgressbar()
-            manager.onError    = url => { JAMIE.errorProgressbar( 'There was an error loading ' + url ); }
-
-			manager.setURLModifier( function ( url ) {
-
-				var file = zip[ url ];
-
-				if ( file ) {
-
-					console.log( 'Loading', url );
-
-					var blob = new Blob( [ file.buffer ], { type: 'application/octet-stream' } );
-					return URL.createObjectURL( blob );
-
-				}
-
-				return url;
-
-			} );
-
-			var extension = path.split( '.' ).pop().toLowerCase();
-
-			switch ( extension ) {
-
-                case 'mtl':
-                    bufferMTL = file.buffer;
+			switch( extension )
+            {
+                case '3ds':
+                {
+                    const loader = new TDSLoader( manager );
+                    const object = loader.parse( file.buffer );
+                    object.name = path;
+                    addObject( object );
                     break;
-                case 'obj':
-                    bufferOBJ = file.buffer;
+                }
+
+                case '3mf':
+                {
+                    const loader = new ThreeMFLoader( manager );
+                    // loader.addExtension( ThreeMFLoader.MaterialsAndPropertiesExtension );
+                    const object = loader.parse( file.buffer );
+                    object.name = path;
+                    addObject( object );
                     break;
+                }
+
+                case 'amf':
+                {
+					const loader = new AMFLoader( manager );
+                    const object = loader.parse( file.buffer );
+                    object.name = path;
+                    addObject( object );
+				    break;
+                }
+
+                case 'dae':
+                {
+					const loader = new ColladaLoader( manager );
+					const collada = loader.parse( strFromU8( file ) );
+					collada.scene.name = path;
+					addAnimation( collada.scene, collada.animations );
+                    addObject( collada.scene );
+				    break;
+                }
+
+                case 'drc':
+                {
+					const loader = new DRACOLoader( manager );
+					loader.setDecoderPath( '/js/draco/' );
+					loader.parse( file.buffer, function ( geometry ) {
+
+                        geometry.center(); // jamie
+                        JAMIE.computeVertexNormals( geometry );; // jamie
+
+                        let object;
+
+						if ( geometry.index !== null )
+                        {
+							const material = new THREE.MeshStandardMaterial();
+							object = new THREE.Mesh( geometry, material );
+							object.name = path;
+						}
+                        else
+                        {
+							const material = new THREE.PointsMaterial( { size: 0.01 } );
+							if ( geometry.hasAttribute( 'color' ) === true ) material.vertexColors = true;
+							object = new THREE.Points( geometry, material );
+							object.name = path;
+						}
+                        loader.dispose();
+                        addObject( object );
+					});
+				    break;
+                }
 
 				case 'fbx':
-
-					var loader = new FBXLoader( manager );
-					var object = loader.parse( file.buffer );
-
+                {
+                    const loader = new FBXLoader( manager );
+                    const object = loader.parse( file.buffer );
+                    object.name = path;
+                    addAnimation( object, object.animations );
                     addObject( object );
+                    break;
+                }
 
-					break;
+                case 'md2':
+                {
+                    const loader = new MD2Loader( manager );
+                    const geometry = loader.parse( file.buffer );
+                    let texture = null;
+                    for( let path in zip )
+                    {
+                        let ext = path.split( '.' ).pop().toLowerCase();
+                        if( ext === 'jpg' ) ext = 'jpeg';
+                        if( ['png','jpeg','gif'].includes( ext ) )
+                        {
+                            const file = zip[ path ];
+                            const mimeType = 'image/' + ext;
+                            const blob = new Blob( [ file.buffer ], { type: mimeType } );
+                            const url = URL.createObjectURL( blob );
+                            texture = new THREE.TextureLoader().load( url );
+                            break; // cf: one md2 model has only one texture
+                        }
+                    }
+                    const material = new THREE.MeshStandardMaterial({ map: texture });
+                    const mesh = new THREE.Mesh( geometry, material );
+                    mesh.mixer = new THREE.AnimationMixer( mesh );                    
+                    mesh.name = path;
+                    addAnimation( mesh, geometry.animations );
+                    addObject( mesh );
+                    break;
+                }
 
 				case 'glb':
-
-					var dracoLoader = new DRACOLoader();
-                    dracoLoader.setDecoderPath( 'js/draco/' );
-
-					var loader = new GLTFLoader();
-					loader.setDRACOLoader( dracoLoader );
-
-					loader.parse( file.buffer, '', function ( result ) {
-
-						var scene = result.scene;
-
+                {
+                    const loader = await createGLTFLoader( manager );
+					loader.parse( file.buffer, '', function ( result )
+                    {
+						const scene = result.scene;
+                        scene.name = path;
+                        __gltf_fix_bug( scene ); // added by jamie
+                        __gltf_add_envmap( scene ); // added by jamie
 						addAnimation( scene, result.animations );
                         addObject( scene );
-
-					} );
-
+                        loader.dracoLoader.dispose();
+						loader.ktx2Loader.dispose();
+					});
 					break;
+                }
 
 				case 'gltf':
-
-					var dracoLoader = new DRACOLoader();
-					dracoLoader.setDecoderPath( 'js/draco/' );
-
-					var loader = new GLTFLoader( manager );
-					loader.setDRACOLoader( dracoLoader );
-
-					loader.parse( strFromU8( file ), '', function ( result ) {
-
-						var scene = result.scene;
-
+                {
+					const loader = await createGLTFLoader( manager );
+					loader.parse( strFromU8( file ), '', function ( result )
+                    {
+						const scene = result.scene;
+                        scene.name = path;
+                        __gltf_fix_bug( scene ); // added by jamie
+                        __gltf_add_envmap( scene ); // added by jamie
 						addAnimation( scene, result.animations );
                         addObject( scene );
-
-					} );
-
+                        loader.dracoLoader.dispose();
+						loader.ktx2Loader.dispose();
+					});
 					break;
+                }
 
+                case 'js':
+			    case 'json':
+                {
+					const contents = file.buffer;
+					// 2.0
+					if ( contents.indexOf( 'postMessage' ) !== - 1 )
+                    {
+						const blob = new Blob( [ contents ], { type: 'text/javascript' } );
+						const url = URL.createObjectURL( blob );
+						const worker = new Worker( url );
+						worker.onmessage = function ( event )
+                        {
+							event.data.metadata = { version: 2 };
+							handleJSON( event.data );
+						};
+						worker.postMessage( Date.now() );
+						return;
+					}
+					// >= 3.0
+					let data;
+					try {
+						data = JSON.parse( contents );
+					} catch ( error ) {
+						alert( error );
+						return;
+					}
+					handleJSON( data );
+				    break;
+                }
+
+                case 'kmz':
+                {
+					const loader = new KMZLoader( manager );
+					const collada = loader.parse( file.buffer );
+					collada.scene.name = path;
+                    addObject( collada.scene );
+				    break;
+                }
+
+                case 'mtl':
+                {
+                    bufferMTL = file.buffer;
+                    break;
+                }
+                case 'obj':
+                {
+                    bufferOBJ = file.buffer;
+                    break;
+                }
+
+                case 'ply':
+                {
+					const geometry = new PLYLoader( manager ).parse( file.buffer );
+                    JAMIE.computeVertexNormals( geometry );
+					const material = new THREE.MeshStandardMaterial();
+					const mesh = new THREE.Mesh( geometry, material );
+					mesh.name = path;
+                    addObject( mesh );
+				    break;
+                }
+
+                case 'stl':
+                {
+                    const contents = file.buffer; // 혹시 contents = strFromU8( file ) 일 수도...
+					const geometry = new STLLoader( manager ).parse( contents );
+                    JAMIE.computeVertexNormals( geometry );
+                    let material;
+                    if( geometry.hasColors )
+                    {
+                        material = new THREE.MeshStandardMaterial({ vertexColors: true });
+                    }
+                    else
+                    {
+                        material = new THREE.MeshStandardMaterial();
+                    }
+					const mesh = new THREE.Mesh( geometry, material );
+					mesh.name = path;
+                    addObject( mesh );
+				    break;
+                }
+
+                case 'svg':
+                {
+					const loader = new SVGLoader( manager );
+					const paths = loader.parse( file.buffer ).paths;
+					const group = new THREE.Group();
+					group.scale.multiplyScalar( 0.1 );
+					group.scale.y *= - 1;
+					for ( let i = 0; i < paths.length; i ++ )
+                    {
+						const path = paths[ i ];
+						const material = new THREE.MeshBasicMaterial( {
+							color: path.color,
+							depthWrite: false
+						} );
+                        const shapes = SVGLoader.createShapes( path );
+						for ( let j = 0; j < shapes.length; j ++ )
+                        {
+							const shape = shapes[ j ];
+                            const geometry = new THREE.ShapeGeometry( shape );
+							const mesh = new THREE.Mesh( geometry, material );
+							group.add( mesh );
+						}
+                    }
+                    group.name = path;
+                    addObject( group );
+				    break;
+                }
+
+                case 'vtk':
+                {
+					const geometry = new VTKLoader( manager ).parse( file.buffer );
+                    JAMIE.computeVertexNormals( geometry );
+					const material = new THREE.MeshStandardMaterial();
+					const mesh = new THREE.Mesh( geometry, material );
+					mesh.name = path;
+                    addObject( mesh );
+				    break;
+                }
+
+                case 'vox':
+                {
+                    const chunks = new VOXLoader( manager ).parse( file.buffer );
+                    const meshes = chunks.map( chunk => new VOXMesh( chunk ) );
+                    const object = new THREE.Group();
+                    object.add( ...meshes );
+                    object.name = path;
+                    addObject( object );
+                    break;
+                }
+
+                case 'wrl':
+                {
+                    const object = new VRMLLoader( manager ).parse( strFromU8( file ) );
+                    object.name = path;
+                    addObject( object );
+				    break;
+                }
+
+                case 'zip':
+                {
+					handleZIP( file.buffer );
+				    break;
+                }
+
+                default:
+                {
+                    if( !['png', 'jpg', 'gif', 'bmp', 'tga', 'mtl', 'bin'].includes( extension ) )
+                    {
+                        console.log( 'Unsupported 3D file format:', extension );
+                    }
+                    break;
+                }
 			}
-
 		}
 
         // OBJ & MTL
@@ -1852,7 +2046,6 @@ JAMIE.Loader = function( appWorks )
             const object = new OBJLoader( manager ).setMaterials( materials ).parse( strFromU8( bufferOBJ ) );
             addObject( object );
         }
-
 	}
 
 	function isGLTF1( contents ) {
@@ -1888,6 +2081,23 @@ JAMIE.Loader = function( appWorks )
 
 		return ( json.asset != undefined && json.asset.version[ 0 ] < 2 );
 
+	}
+
+    async function createGLTFLoader( manager )
+    {
+		const dracoLoader = new DRACOLoader();
+		dracoLoader.setDecoderPath( '/js/draco/' );
+
+		const ktx2Loader = new KTX2Loader();
+		ktx2Loader.setTranscoderPath( '/js/basis/' );
+
+		const loader = new GLTFLoader( manager );
+        loader.setCrossOrigin('anonymous');
+		loader.setDRACOLoader( dracoLoader );
+		loader.setKTX2Loader( ktx2Loader.detectSupport( JAMIE.appWorks.renderer ) );
+		loader.setMeshoptDecoder( MeshoptDecoder );
+
+		return loader;
 	}
 }
 
@@ -2504,6 +2714,37 @@ JAMIE.getMaterialCount = function( object )
     });
 
     return materials.size;
+}
+
+JAMIE.demoApplication = async function()
+{
+    const example = 2;
+
+    if( example === 1 )
+    {
+        const appWorks = JAMIE.appWorks;
+        const url = '/models/gltf/BoomBox.glb';
+        const data = await fetch( url );
+        const blob = await data.blob();
+        const file = new File( [ blob ], 'BoomBox.glb' );
+        new JAMIE.Loader( appWorks ).loadFiles([ file ]);
+    }
+
+    if( example === 2 )
+    {
+        const urls = ['/models/gltf/LittlestTokyo.glb'];
+        JAMIE.loadFiles( urls );
+    }
+
+    if( example === 3 )
+    {
+        const geometry = new THREE.BoxGeometry();
+        const material = new THREE.MeshStandardMaterial({
+            map: AppWorks.loadTexture('/images/brick_bump.jpg')
+        });
+        const mesh = new THREE.Mesh( geometry, material );
+        JAMIE.add( mesh );
+    }
 }
 
 //==============================================================================

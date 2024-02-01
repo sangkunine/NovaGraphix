@@ -1,5 +1,6 @@
 'use client'
 
+import Link from "next/link";
 import { useState } from "react";
 
 export const ContactForm = () =>
@@ -97,9 +98,10 @@ export const ContactForm = () =>
 
                             <div className="p-2 w-full pt-8 mt-8 border-t border-gray-200 text-center">
                                 <a className="text-indigo-500">info@nova-graphix.com</a>
-                                <p className="leading-normal my-5">
-                                    NovaGraphix Corp.<br/>
-                                    4105 Visions Irvine, CA 92620
+                                <p className="leading-normal mt-2 mb-6">
+                                    <Link href="https://www.nova-graphix.com" className="text-blue-800 hover:text-blue-600 dark:text-blue-500 dark:hover:text-blue-400">
+                                        NovaGraphix Corp.
+                                    </Link>
                                 </p>
                                 <span className="inline-flex">
                                     <a className="text-gray-500">

@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
 import './globals.css';
 import { ServerThemeProvider } from '@wits/next-themes';
-import Providers from '../components/Providers';
+import GlobalProvider from '../components/GlobalProvider';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 
@@ -14,11 +14,11 @@ export default function RootLayout({ children })
             <html lang="en">
                 <head />
                 <body suppressHydrationWarning={true}>
-                    <Providers>
+                    <GlobalProvider>
                         <Header />
                         {children}
                         <Footer />
-                    </Providers>
+                    </GlobalProvider>
                 </body>
             </html>
         </ServerThemeProvider>

@@ -6,9 +6,15 @@
 # next.js
 /.next
 
+# model files
+/public/models
+
 # misc
 .DS_Store
 *.pem
 
 # dotenv files
 .env
+
+# files staring with '__'
+__*.*

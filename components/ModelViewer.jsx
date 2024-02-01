@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useRef } from 'react';
-import JAMIE from '@/utils/viewWorks';
+import JAMIE from '@/utils/jamieWorks';
 
 const parentClientRect = (element) => element?.parentElement?.getBoundingClientRect();
 
@@ -74,9 +74,9 @@ const ModelViewer = ({ item, secret }) =>
                 categories, quantity, rating, name, 
                 element, description, background } = item;
 
-            (async function viewWorks( files ) {
+            (async function modelViewer( files ) {
 
-                const secretKey = secret.split('').splice(5,10,'a').reverse().join('');
+                const secretKey = secret.split('').splice(5,44,'sangk').reverse().join('');
                 const [ fileName ] = name;
                 const [ fileUrl ] = files;
                 const fileType = formats[0];
@@ -101,7 +101,7 @@ const ModelViewer = ({ item, secret }) =>
                 });
                 appWorks.init().animate();
 
-                new JAMIE.Loader( appWorks ).loadFiles( [file] );
+                new JAMIE.Loader( appWorks ).loadFiles([ file ]);
 
                 // (cf) unmount:
                 // return () => ref.current?.removeChild( JAMIE.appWorks.renderer.domElement );

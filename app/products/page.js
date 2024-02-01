@@ -3,6 +3,8 @@
 import { useEffect } from 'react';
 import Link from 'next/link';
 
+import { GiftIcon } from '@/components/ClientUI';
+
 export default function ProductsPage()
 {
     useEffect( () => { import('preline') }, [] );
@@ -16,7 +18,9 @@ export default function ProductsPage()
     return (
         <div className={dropdownStyle}>
             <button type="button" className={buttonStyle}>
-                <Link href="#">Products</Link>
+                <Link href="#" className="flex flex-col items-center">
+                    <GiftIcon />Products
+                </Link>
             </button>
             <div className={aParentStyle}>
                 <Link href="/products/natureworks" className={aStyle}>NatureWorks</Link>

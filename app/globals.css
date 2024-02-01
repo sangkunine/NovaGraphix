@@ -84,3 +84,11 @@ p, ul {
     text-slate-500
     dark:text-slate-400
 }
+
+.tooltip {
+    @apply invisible absolute;
+}
+
+.has-tooltip:hover .tooltip {
+    @apply visible z-50;
+}

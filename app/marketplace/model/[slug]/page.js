@@ -46,7 +46,7 @@ const ModelPage = async ({ params }) =>
     const _categories = categories.join(", ");
     const _quantity = quantity.toLocaleString();
     const _element = element.join(", ").toUpperCase();
-    const _price = '$' + price.toLocaleString();
+    const _price = price.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
 
     return (
         <section className="text-gray-600 body-font overflow-hidden">
@@ -69,7 +69,7 @@ const ModelPage = async ({ params }) =>
                                 {_rating}
                                 {/* <span className="text-gray-600 ml-3">4 Reviews</span> */}
                             </span>
-                            {/* <SNSLogo /> */}
+                            {/* <SNSLogoIcons /> */}
                         </div>
 
                         <p className="leading-relaxed mb-4">{_description}</p>
@@ -89,13 +89,13 @@ const ModelPage = async ({ params }) =>
                         <SelectAnimationButton />
                         
                         <div className="flex mt-0 items-center pb-5 border-b-2 border-gray-100 mb-5">
-                            {/* <ColorSelect />
-                            <SizeSelect /> */}
+                            {/* <ColorSelect /> */}
+                            {/* <SizeSelect /> */}
                         </div>
 
                         <div className="flex">
                             <span className="title-font font-medium text-2xl text-gray-500">{_price}</span>
-                            <AddToCartButton />
+                            <AddToCartButton item={item}/>
                             <HeartButton />
                         </div>
                     </div>
